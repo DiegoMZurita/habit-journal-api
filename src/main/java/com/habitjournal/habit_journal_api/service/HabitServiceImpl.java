@@ -3,11 +3,13 @@ package com.habitjournal.habit_journal_api.service;
 import com.habitjournal.habit_journal_api.controller.dto.HabitRequestDTO;
 import com.habitjournal.habit_journal_api.controller.dto.HabitResponseDTO;
 import com.habitjournal.habit_journal_api.model.Habit;
+import com.habitjournal.habit_journal_api.model.LogEntry;
 import com.habitjournal.habit_journal_api.repository.HabitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -34,9 +36,13 @@ public class HabitServiceImpl  implements  HabitService {
 
     @Override
     public List<HabitResponseDTO> getAllHabits() {
-        List<Habit> habits = habitRepository.findAll();
+        List<Habit> habits = habitRepository.findAllWithLogs();
 
-        return habits.stream().map(habit -> new HabitResponseDTO(habit.getId(), habit.getName()))
+        return habits.stream().map(habit -> {
+            List<LocalDateTime> logDates = habit.getLogEntries().stream()
+                    .map(LogEntry::getEntryDate).toList();
+                    return new HabitResponseDTO(habit.getId(), habit.getName(), logDates);
+                })
                 .toList();
     }
 }
