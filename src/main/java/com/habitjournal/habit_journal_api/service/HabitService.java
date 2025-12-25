@@ -6,6 +6,6 @@ import com.habitjournal.habit_journal_api.controller.dto.HabitResponseDTO;
 import java.util.List;
 
 public interface HabitService {
-    void createNewHabit(HabitRequestDTO requestDTO);
+    HabitResponseDTO createNewHabit(HabitRequestDTO requestDTO);
     List<HabitResponseDTO> getAllHabits();
 }

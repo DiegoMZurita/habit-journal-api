@@ -5,9 +5,11 @@ import com.habitjournal.habit_journal_api.controller.dto.HabitResponseDTO;
 import com.habitjournal.habit_journal_api.model.Habit;
 import com.habitjournal.habit_journal_api.model.LogEntry;
 import com.habitjournal.habit_journal_api.repository.HabitRepository;
+import com.habitjournal.habit_journal_api.service.exceptions.DuplicateHabitException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,12 +22,12 @@ public class HabitServiceImpl  implements  HabitService {
     private final HabitRepository habitRepository;
 
     @Override
-    public void createNewHabit(HabitRequestDTO requestDTO) {
-        if(requestDTO.getName()==null || requestDTO.getName().trim().isEmpty()){
-            System.out.println("Error de la lógica de negocios.");
-            return;
-        }
-        System.out.println("Servicio: Mapeando de DTO a Habit");
+    @Transactional
+    public HabitResponseDTO createNewHabit(HabitRequestDTO requestDTO) {
+        habitRepository.findByName(requestDTO.getName()).ifPresent(habit -> {
+            throw new DuplicateHabitException(requestDTO.getName());
+        });
+
         Habit newHabit = new Habit();
         newHabit.setName(requestDTO.getName());
 
@@ -39,20 +41,24 @@ public class HabitServiceImpl  implements  HabitService {
             }
         }
 
-        habitRepository.save(newHabit);
+        Habit habit = habitRepository.save(newHabit);
 
-        System.out.println("Habito ingresado correctamente.");
+        return mapToResponseDto(habit);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<HabitResponseDTO> getAllHabits() {
         List<Habit> habits = habitRepository.findAllWithLogs();
 
-        return habits.stream().map(habit -> {
-            List<LocalDateTime> logDates = habit.getLogEntries().stream()
-                    .map(LogEntry::getEntryDate).toList();
-                    return new HabitResponseDTO(habit.getId(), habit.getName(), logDates);
-                })
+        return habits.stream().map(this::mapToResponseDto)
                 .toList();
+    }
+
+    private HabitResponseDTO mapToResponseDto(Habit habit) {
+        List<LocalDateTime> logDates = habit.getLogEntries().stream()
+                .map(LogEntry::getEntryDate).toList();
+
+        return new HabitResponseDTO(habit.getId(), habit.getName(), logDates);
     }
 }

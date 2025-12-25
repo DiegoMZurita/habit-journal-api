@@ -3,7 +3,9 @@ package com.habitjournal.habit_journal_api.controller;
 import com.habitjournal.habit_journal_api.controller.dto.HabitRequestDTO;
 import com.habitjournal.habit_journal_api.controller.dto.HabitResponseDTO;
 import com.habitjournal.habit_journal_api.service.HabitService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +19,10 @@ public class HabitController {
     private final HabitService habitService;
 
     @PostMapping
-    public void createNewHabit(@RequestBody HabitRequestDTO habitRequestDTO) {
-        habitService.createNewHabit(habitRequestDTO);
+    public ResponseEntity<HabitResponseDTO> createNewHabit(@Valid @RequestBody HabitRequestDTO habitRequestDTO) {
+        HabitResponseDTO responseDTO = habitService.createNewHabit(habitRequestDTO);
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
     }
 
     @GetMapping
