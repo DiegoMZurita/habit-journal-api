@@ -29,6 +29,16 @@ public class HabitServiceImpl  implements  HabitService {
         Habit newHabit = new Habit();
         newHabit.setName(requestDTO.getName());
 
+        if(requestDTO.getLogs() != null && !requestDTO.getLogs().isEmpty()){
+            for(LocalDateTime date: requestDTO.getLogs()){
+                LogEntry log = new LogEntry();
+                log.setEntryDate(date);
+                log.setHabit(newHabit);
+
+                newHabit.getLogEntries().add(log);
+            }
+        }
+
         habitRepository.save(newHabit);
 
         System.out.println("Habito ingresado correctamente.");
