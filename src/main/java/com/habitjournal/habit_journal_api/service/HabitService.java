@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface HabitService {
     HabitResponseDTO createNewHabit(HabitRequestDTO requestDTO);
-    List<HabitResponseDTO> getAllHabits();
+    List<HabitResponseDTO> findAllHabits();
+    List<HabitResponseDTO> findHabitsLoggedSince(int days);
 }

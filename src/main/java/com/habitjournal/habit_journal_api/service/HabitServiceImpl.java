@@ -35,7 +35,6 @@ public class HabitServiceImpl  implements  HabitService {
             for(LocalDateTime date: requestDTO.getLogs()){
                 LogEntry log = new LogEntry();
                 log.setEntryDate(date);
-                log.setHabit(newHabit);
 
                 newHabit.getLogEntries().add(log);
             }
@@ -48,11 +47,22 @@ public class HabitServiceImpl  implements  HabitService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<HabitResponseDTO> getAllHabits() {
-        List<Habit> habits = habitRepository.findAllWithLogs();
+    public List<HabitResponseDTO> findAllHabits() {
+        List<Habit> habits = habitRepository.findAll();
 
         return habits.stream().map(this::mapToResponseDto)
                 .toList();
+    }
+
+    @Override
+    public List<HabitResponseDTO> findHabitsLoggedSince(int days) {
+
+        LocalDateTime sinceDate = LocalDateTime.now().minusDays(days);
+
+
+        List<Habit> activeHabits = habitRepository.findHabitsLoggedSince(sinceDate);
+
+        return activeHabits.stream().map(this::mapToResponseDto).toList();
     }
 
     private HabitResponseDTO mapToResponseDto(Habit habit) {
