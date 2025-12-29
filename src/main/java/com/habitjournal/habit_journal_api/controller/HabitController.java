@@ -27,8 +27,13 @@ public class HabitController {
 
     @GetMapping
     public ResponseEntity<List<HabitResponseDTO>> findAllHabits() {
-        List<HabitResponseDTO> habitResponseDTOS = habitService.getAllHabits();
+        List<HabitResponseDTO> habitResponseDTOS = habitService.findAllHabits();
 
         return ResponseEntity.ok(habitResponseDTOS);
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<HabitResponseDTO>> getActiveHabits(@RequestParam(defaultValue = "7") int days){
+        return ResponseEntity.ok(habitService.findHabitsLoggedSince(days));
     }
 }
